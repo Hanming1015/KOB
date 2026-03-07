@@ -53,15 +53,29 @@ export default {
         //     }
         // })
 
+        // $.ajax({
+        //     url: "http://localhost:3000/user/bot/update/",
+        //     type: "POST",
+        //     data: {
+        //         bot_id: 2,
+        //         title: "MyBot_updated",
+        //         description: "This is my updated bot.",
+        //         content: "print('updated successfully!')",
+        //     },
+        //     headers: {
+        //         Authorization: "Bearer " + store.state.user.token,
+        //     },
+        //     success(resp) {
+        //         console.log(resp);
+        //     },
+        //     error(resp) {
+        //         console.log(resp);
+        //     }
+        // })
+
         $.ajax({
-            url: "http://localhost:3000/user/bot/update/",
-            type: "POST",
-            data: {
-                bot_id: 2,
-                title: "MyBot_updated",
-                description: "This is my updated bot.",
-                content: "print('updated successfully!')",
-            },
+            url: "http://localhost:3000/user/bot/getlist/",
+            type: "GET",
             headers: {
                 Authorization: "Bearer " + store.state.user.token,
             },
