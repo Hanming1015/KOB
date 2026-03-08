@@ -3,10 +3,11 @@ import { Wall } from "./Wall";
 import { Snake } from "./Snake";
 
 export class GameMap extends AcGameObject {
-    constructor(ctx, parent) {
+    constructor(ctx, parent, store) {
         super();
         this.ctx = ctx;
         this.parent = parent;
+        this.store = store;
         this.L = 0;
 
         this.row = 13;
@@ -21,54 +22,9 @@ export class GameMap extends AcGameObject {
         ];
     }
 
-    check_connectivity(g, sx, sy, tx, ty) {
-        if (sx === tx && sy === ty) return true;
-
-        g[sx][sy] = true;
-        const dx = [-1, 0, 1, 0], dy = [0, 1, 0, -1];
-        for (let i = 0; i < 4; i++) {
-            const x = sx + dx[i], y = sy + dy[i];
-            if (x < 0 || x >= this.row || y < 0 || y >= this.col) continue;
-            if (g[x][y]) continue;
-            if (this.check_connectivity(g, x, y, tx, ty)) return true;
-        }
-        return false;
-    }
-
     create_walls() {
-        const g = [];
-        for (let r = 0; r < this.row; r++) {
-            g[r] = [];
-            for (let c = 0; c < this.col; c++) {
-                g[r][c] = false;
-            }
-        }
-
-        for (let r = 0; r < this.row; r++) {
-            g[r][0] = g[r][this.col - 1] = true;
-        }
-
-        for (let c = 0; c < this.col; c++) {
-            g[0][c] = g[this.row - 1][c] = true;
-        }
-
-        for (let i = 0; i < this.inner_walls_count / 2; i++) {
-            for (let j = 0; j < 1000; j++) {
-                let r = parseInt(Math.random() * this.row);
-                let c = parseInt(Math.random() * this.col);
-                if (g[r][c] || g[this.row - 1 - r][this.col - 1 - c]) continue;
-                g[r][c] = g[this.row - 1 - r][this.col - 1 - c] = true;
-                if (r == this.row - 2 && c == 1 || r == 1 && c == this.col - 2) 
-                    continue;
-                break;
-            }
-        }
-
-        const copy_g = JSON.parse(JSON.stringify(g));
-        if (!this.check_connectivity(copy_g, this.row - 2, 1, 1, this.col - 2)) {
-            return false;
-        }
-
+        const g = this.store.state.pk.gamemap;
+        console.log(g);
         for (let r = 0; r < this.row; r++) {
             for (let c = 0; c < this.col; c++) {
                 if (g[r][c]) {
@@ -76,7 +32,6 @@ export class GameMap extends AcGameObject {
                 }
             }
         }
-
         return true;
     }
 
@@ -98,9 +53,7 @@ export class GameMap extends AcGameObject {
     }
 
     start(){
-        for (let i = 0; i < 1000; i++) {
-            if (this.create_walls()) break;
-        }
+        this.create_walls();
         this.add_listening_events();
     }
 
