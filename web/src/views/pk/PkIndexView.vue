@@ -1,6 +1,7 @@
 <template>
     <PlayGround v-if="$store.state.pk.status === 'playing'" />
     <MatchGround v-else-if="$store.state.pk.status === 'matching'" />
+    <ResultBot v-if="$store.state.pk.loser !== 'none'" />
 </template>
 
 <script>
@@ -8,12 +9,14 @@ import PlayGround from '@/components/PlayGround.vue';
 import MatchGround from '@/components/MatchGround.vue';
 import { onMounted, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
+import ResultBot from '@/components/ResultBot.vue';
 
 export default {
     name: 'PkIndexView',
     components: {
         PlayGround,
         MatchGround,
+        ResultBot,
     },
     setup() {
         const store = useStore();
@@ -42,8 +45,26 @@ export default {
                     });
                     setTimeout(() => {
                         store.commit("updateStatus", "playing");
-                    }, 3000);
-                    store.commit("updateGamemap", data.gamemap);
+                    }, 300);
+                    store.commit("updateGame", data.game);
+                } else if (data.event === "move") {
+                    //console.log("Received move event:", data);
+                    const game = store.state.pk.gameObject;
+                    const [snake0, snake1] = game.snakes;
+                    snake0.set_direction(data.a_direction);
+                    snake1.set_direction(data.b_direction);
+                } else if (data.event === "result") {
+                    //console.log("Game result:", data);
+                    const game = store.state.pk.gameObject;
+                    const [snake0, snake1] = game.snakes;
+
+                    if (Date.loser === "all" || data.loser === "A") {
+                        snake0.status = "die";
+                    }
+                    if (data.loser === "all" || data.loser === "B") {
+                        snake1.status = "die";
+                    }
+                    store.commit("updateLoser", data.loser);
                 }
             }
 
@@ -54,7 +75,7 @@ export default {
 
         onUnmounted(() => {
             socket.close();
-            store.commit("updateStatus", "playing");
+            store.commit("updateStatus", "matching");
         });
     }
 };
