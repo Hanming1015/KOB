@@ -45,7 +45,7 @@ export default {
             } else {
                 match_btn_info.value = "Start Matching";
                 store.state.pk.socket.send(JSON.stringify({
-                    event: "cancel-matching",
+                    event: "stop-matching",
                 }));
             }
         }
